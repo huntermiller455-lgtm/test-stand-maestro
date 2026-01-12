@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,29 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom colors for scheduler
+        "grid-line": "hsl(var(--grid-line))",
+        "grid-hour": "hsl(var(--grid-hour))",
+        "time-indicator": "hsl(var(--time-indicator))",
+        status: {
+          operational: "hsl(var(--status-operational))",
+          down: "hsl(var(--status-down))",
+          running: "hsl(var(--status-running))",
+          completed: "hsl(var(--status-completed))",
+          cancelled: "hsl(var(--status-cancelled))",
+          scheduled: "hsl(var(--status-scheduled))",
+        },
+        test: {
+          initial: "hsl(var(--test-initial))",
+          "1030-1090": "hsl(var(--test-1030-1090))",
+          pwt: "hsl(var(--test-pwt))",
+          rc: "hsl(var(--test-rc))",
+          vswr: "hsl(var(--test-vswr))",
+          bit: "hsl(var(--test-bit))",
+          emc: "hsl(var(--test-emc))",
+          ett: "hsl(var(--test-ett))",
+          manual: "hsl(var(--test-manual))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +92,22 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1", boxShadow: "0 0 8px currentColor" },
+          "50%": { opacity: "0.7", boxShadow: "0 0 16px currentColor" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },

@@ -1,7 +1,8 @@
 import { Machine, Job, ViewMode } from '@/types/scheduler';
 import { JobBar } from './JobBar';
-import { getJobPosition, getTimeWindow } from '@/lib/timeUtils';
+import { getJobPosition, getTimeWindow, getHoursForMode } from '@/lib/timeUtils';
 import { cn } from '@/lib/utils';
+import { useDroppable } from '@dnd-kit/core';
 
 interface MachineRowProps {
   machine: Machine;
@@ -9,6 +10,36 @@ interface MachineRowProps {
   currentDate: Date;
   mode: ViewMode;
   onJobClick: (job: Job) => void;
+}
+
+interface LaneDropZoneProps {
+  machineId: string;
+  laneIndex: number;
+  children: React.ReactNode;
+  isDualCapacity: boolean;
+}
+
+function LaneDropZone({ machineId, laneIndex, children, isDualCapacity }: LaneDropZoneProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `${machineId}-lane-${laneIndex}`,
+    data: {
+      machineId,
+      laneIndex,
+    },
+  });
+
+  return (
+    <div 
+      ref={setNodeRef}
+      className={cn(
+        'relative',
+        isDualCapacity ? 'h-1/2' : 'h-full',
+        isOver && 'bg-primary/20'
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function MachineRow({ machine, jobs, currentDate, mode, onJobClick }: MachineRowProps) {
@@ -23,6 +54,7 @@ export function MachineRow({ machine, jobs, currentDate, mode, onJobClick }: Mac
   
   const isDualCapacity = machine.capacity === 2;
   const rowHeight = isDualCapacity ? 'h-24' : 'h-14';
+  const hours = getHoursForMode(mode);
 
   return (
     <div className={cn(
@@ -46,11 +78,21 @@ export function MachineRow({ machine, jobs, currentDate, mode, onJobClick }: Mac
       </div>
       
       {/* Timeline area */}
-      <div className="flex-1 relative time-grid">
+      <div className="flex-1 relative">
+        {/* Hour grid lines */}
+        <div className="absolute inset-0 flex">
+          {hours.map((hour, index) => (
+            <div 
+              key={`${hour}-${index}`} 
+              className="flex-1 border-r border-grid-line"
+            />
+          ))}
+        </div>
+
         {isDualCapacity && <div className="lane-divider" />}
         
-        {/* Lane 0 jobs */}
-        <div className={cn('relative', isDualCapacity ? 'h-1/2' : 'h-full')}>
+        {/* Lane 0 */}
+        <LaneDropZone machineId={machine.id} laneIndex={0} isDualCapacity={isDualCapacity}>
           {lane0Jobs.map(job => {
             const position = getJobPosition(
               new Date(job.start_datetime),
@@ -69,11 +111,11 @@ export function MachineRow({ machine, jobs, currentDate, mode, onJobClick }: Mac
               />
             ));
           })}
-        </div>
+        </LaneDropZone>
         
-        {/* Lane 1 jobs (only for dual-capacity machines) */}
+        {/* Lane 1 (only for dual-capacity machines) */}
         {isDualCapacity && (
-          <div className="relative h-1/2">
+          <LaneDropZone machineId={machine.id} laneIndex={1} isDualCapacity={isDualCapacity}>
             {lane1Jobs.map(job => {
               const position = getJobPosition(
                 new Date(job.start_datetime),
@@ -92,7 +134,7 @@ export function MachineRow({ machine, jobs, currentDate, mode, onJobClick }: Mac
                 />
               ));
             })}
-          </div>
+          </LaneDropZone>
         )}
       </div>
     </div>

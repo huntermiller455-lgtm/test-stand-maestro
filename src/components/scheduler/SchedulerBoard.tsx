@@ -18,6 +18,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { UserMenu } from '@/components/auth/UserMenu';
+import { useAuth } from '@/hooks/useAuth';
 
 export function SchedulerBoard() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -272,6 +274,8 @@ export function SchedulerBoard() {
               <Plus className="h-4 w-4" />
               Add Job
             </Button>
+
+            <UserMenu />
           </div>
         </header>
 

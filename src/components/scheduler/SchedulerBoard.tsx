@@ -9,6 +9,7 @@ import { AddJobModal } from './AddJobModal';
 import { MachineStatusPanel } from './MachineStatusPanel';
 import { JobBarGhost } from './JobBar';
 import { useMachines, useTestTypes, useJobs, useCreateJob, useUpdateJob, useDeleteJob, useUpdateMachine } from '@/hooks/useSchedulerData';
+import { useRealtimeJobs } from '@/hooks/useRealtimeJobs';
 import { getTimeWindow, getTimeFromPosition } from '@/lib/timeUtils';
 import { checkJobConflict, findAvailableLane } from '@/lib/conflictDetection';
 import { Job, ViewMode } from '@/types/scheduler';
@@ -40,6 +41,9 @@ export function SchedulerBoard() {
   const updateJob = useUpdateJob();
   const deleteJob = useDeleteJob();
   const updateMachine = useUpdateMachine();
+
+  // Enable realtime updates for jobs
+  useRealtimeJobs();
 
   const isLoading = machinesLoading || testTypesLoading || jobsLoading;
 

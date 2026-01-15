@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useMachines, useTestTypes, useAllJobs, useCreateJob } from '@/hooks/useSchedulerData';
+import { useAuth } from '@/hooks/useAuth';
+import { UserMenu } from '@/components/auth/UserMenu';
 import { JobStatus } from '@/types/scheduler';
 import { ArrowLeft, Search, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,6 +23,7 @@ const statusColors: Record<JobStatus, string> = {
 };
 
 export default function History() {
+  const { user, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
   const [machineFilter, setMachineFilter] = useState<string>('all');
@@ -35,6 +39,21 @@ export default function History() {
   });
 
   const createJob = useCreateJob();
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-md p-8">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-8 w-3/4 mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
 
   function handleDuplicate(job: typeof jobs[0]) {
     createJob.mutate({
@@ -62,6 +81,7 @@ export default function History() {
           </Link>
           <h1 className="text-xl font-bold tracking-tight">Job History</h1>
         </div>
+        <UserMenu />
       </header>
 
       <div className="p-4 space-y-4">

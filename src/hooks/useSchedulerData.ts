@@ -93,10 +93,14 @@ export function useCreateJob() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (job: Omit<Job, 'id' | 'created_at' | 'updated_at' | 'test_type' | 'machine'>) => {
+    mutationFn: async (job: Omit<Job, 'id' | 'created_at' | 'updated_at' | 'test_type' | 'machine' | 'created_by'>) => {
+      // Get current user ID for RLS enforcement
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('You must be logged in to create a job');
+      
       const { data, error } = await supabase
         .from('jobs')
-        .insert(job)
+        .insert({ ...job, created_by: user.id })
         .select()
         .single();
       if (error) throw error;

@@ -15,7 +15,7 @@ interface AddJobModalProps {
   machines: Machine[];
   testTypes: TestType[];
   existingJob?: Job | null;
-  onSave: (job: Omit<Job, 'id' | 'created_at' | 'updated_at' | 'test_type' | 'machine'>) => void;
+  onSave: (job: Omit<Job, 'id' | 'created_at' | 'updated_at' | 'test_type' | 'machine' | 'created_by'>) => void;
   onDelete?: (id: string) => void;
 }
 
@@ -83,19 +83,34 @@ export function AddJobModal({
 
   function handleSave() {
     if (!serialNumber.trim() || !testTypeId || !machineId) return;
+    
+    // Validate input lengths to match database constraints
+    const trimmedSerial = serialNumber.trim();
+    const trimmedNotes = notes.trim() || null;
+    
+    if (trimmedSerial.length > 100) {
+      return; // Serial number too long
+    }
+    if (trimmedNotes && trimmedNotes.length > 1000) {
+      return; // Notes too long
+    }
+    
+    const duration = parseFloat(durationHours);
+    if (duration <= 0 || duration > 720) {
+      return; // Duration out of valid range
+    }
 
     const startTime = useNow ? new Date() : new Date(startDatetime);
     
     onSave({
-      serial_number: serialNumber.trim(),
+      serial_number: trimmedSerial,
       test_type_id: testTypeId,
       machine_id: machineId,
       lane_index: laneIndex,
       start_datetime: startTime.toISOString(),
-      duration_hours: parseFloat(durationHours),
+      duration_hours: duration,
       status,
-      notes: notes.trim() || null,
-      created_by: null,
+      notes: trimmedNotes,
     });
     
     onOpenChange(false);

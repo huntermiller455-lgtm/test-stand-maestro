@@ -3,6 +3,45 @@ import { supabase } from '@/integrations/supabase/client';
 import { Machine, TestType, Job, JobStatus } from '@/types/scheduler';
 import { toast } from 'sonner';
 
+/**
+ * Maps database errors to user-friendly messages to prevent information leakage.
+ * Keeps technical details in console logs for debugging.
+ */
+function getErrorMessage(error: unknown, operation: string): string {
+  const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
+  
+  if (errorMessage.includes('foreign key')) {
+    return 'Referenced record not found';
+  }
+  if (errorMessage.includes('duplicate key') || errorMessage.includes('unique')) {
+    return 'A record with this value already exists';
+  }
+  if (errorMessage.includes('check constraint') || errorMessage.includes('violates check')) {
+    return 'Invalid input value provided';
+  }
+  if (errorMessage.includes('row level security') || errorMessage.includes('permission') || errorMessage.includes('policy')) {
+    return 'You do not have permission for this operation';
+  }
+  if (errorMessage.includes('not found') || errorMessage.includes('no rows')) {
+    return 'Record not found';
+  }
+  
+  // Generic fallback - never expose raw error
+  return `Failed to ${operation}. Please try again.`;
+}
+
+/**
+ * Sanitizes search input to prevent potential injection and ensure safe pattern matching.
+ * - Trims whitespace
+ * - Limits length to 100 characters
+ * - Returns null if empty after sanitization
+ */
+function sanitizeSearchInput(search: string | undefined): string | null {
+  if (!search) return null;
+  const sanitized = search.trim().substring(0, 100);
+  return sanitized.length > 0 ? sanitized : null;
+}
+
 export function useMachines() {
   return useQuery({
     queryKey: ['machines'],
@@ -78,8 +117,11 @@ export function useAllJobs(filters?: {
       if (filters?.test_type_id) {
         query = query.eq('test_type_id', filters.test_type_id);
       }
-      if (filters?.search) {
-        query = query.ilike('serial_number', `%${filters.search}%`);
+      
+      // Sanitize search input before using in query
+      const sanitizedSearch = sanitizeSearchInput(filters?.search);
+      if (sanitizedSearch) {
+        query = query.ilike('serial_number', `%${sanitizedSearch}%`);
       }
 
       const { data, error } = await query;
@@ -111,7 +153,8 @@ export function useCreateJob() {
       toast.success('Job created successfully');
     },
     onError: (error) => {
-      toast.error('Failed to create job: ' + error.message);
+      console.error('Job creation failed:', error);
+      toast.error(getErrorMessage(error, 'create job'));
     },
   });
 }
@@ -135,7 +178,8 @@ export function useUpdateJob() {
       toast.success('Job updated successfully');
     },
     onError: (error) => {
-      toast.error('Failed to update job: ' + error.message);
+      console.error('Job update failed:', error);
+      toast.error(getErrorMessage(error, 'update job'));
     },
   });
 }
@@ -156,7 +200,8 @@ export function useDeleteJob() {
       toast.success('Job deleted successfully');
     },
     onError: (error) => {
-      toast.error('Failed to delete job: ' + error.message);
+      console.error('Job deletion failed:', error);
+      toast.error(getErrorMessage(error, 'delete job'));
     },
   });
 }
@@ -180,7 +225,8 @@ export function useUpdateMachine() {
       toast.success('Machine status updated');
     },
     onError: (error) => {
-      toast.error('Failed to update machine: ' + error.message);
+      console.error('Machine update failed:', error);
+      toast.error(getErrorMessage(error, 'update machine'));
     },
   });
 }

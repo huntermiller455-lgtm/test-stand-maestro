@@ -65,7 +65,6 @@ export default function History() {
       duration_hours: job.duration_hours,
       status: 'scheduled',
       notes: job.notes,
-      created_by: null,
     });
     toast.success('Job duplicated');
   }

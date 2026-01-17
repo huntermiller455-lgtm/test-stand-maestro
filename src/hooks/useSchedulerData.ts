@@ -153,7 +153,10 @@ export function useCreateJob() {
       toast.success('Job created successfully');
     },
     onError: (error) => {
-      console.error('Job creation failed:', error);
+      // Only log sanitized error messages in development to prevent info leakage
+      if (import.meta.env.DEV) {
+        console.error('Job creation failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
       toast.error(getErrorMessage(error, 'create job'));
     },
   });
@@ -178,7 +181,10 @@ export function useUpdateJob() {
       toast.success('Job updated successfully');
     },
     onError: (error) => {
-      console.error('Job update failed:', error);
+      // Only log sanitized error messages in development to prevent info leakage
+      if (import.meta.env.DEV) {
+        console.error('Job update failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
       toast.error(getErrorMessage(error, 'update job'));
     },
   });
@@ -200,7 +206,10 @@ export function useDeleteJob() {
       toast.success('Job deleted successfully');
     },
     onError: (error) => {
-      console.error('Job deletion failed:', error);
+      // Only log sanitized error messages in development to prevent info leakage
+      if (import.meta.env.DEV) {
+        console.error('Job deletion failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
       toast.error(getErrorMessage(error, 'delete job'));
     },
   });
@@ -225,7 +234,10 @@ export function useUpdateMachine() {
       toast.success('Machine status updated');
     },
     onError: (error) => {
-      console.error('Machine update failed:', error);
+      // Only log sanitized error messages in development to prevent info leakage
+      if (import.meta.env.DEV) {
+        console.error('Machine update failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
       toast.error(getErrorMessage(error, 'update machine'));
     },
   });

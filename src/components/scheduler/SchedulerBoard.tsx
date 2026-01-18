@@ -7,9 +7,11 @@ import { MachineRow } from './MachineRow';
 import { CurrentTimeIndicator } from './CurrentTimeIndicator';
 import { AddJobModal } from './AddJobModal';
 import { MachineStatusPanel } from './MachineStatusPanel';
+import { SettingsPanel } from './SettingsPanel';
 import { JobBarGhost } from './JobBar';
 import { useMachines, useTestTypes, useJobs, useCreateJob, useUpdateJob, useDeleteJob, useUpdateMachine } from '@/hooks/useSchedulerData';
 import { useRealtimeJobs } from '@/hooks/useRealtimeJobs';
+import { useSettings } from '@/hooks/useSettings';
 import { getTimeWindow, getTimeFromPosition } from '@/lib/timeUtils';
 import { checkJobConflict, findAvailableLane } from '@/lib/conflictDetection';
 import { Job, ViewMode } from '@/types/scheduler';
@@ -22,8 +24,9 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { useAuth } from '@/hooks/useAuth';
 
 export function SchedulerBoard() {
+  const { settings, updateSettings } = useSettings();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('shift');
+  const [viewMode, setViewMode] = useState<ViewMode>(settings.defaultViewMode);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [activeJob, setActiveJob] = useState<Job | null>(null);
@@ -274,6 +277,11 @@ export function SchedulerBoard() {
               <Plus className="h-4 w-4" />
               Add Job
             </Button>
+
+            <SettingsPanel
+              defaultViewMode={settings.defaultViewMode}
+              onDefaultViewModeChange={(mode) => updateSettings({ defaultViewMode: mode })}
+            />
 
             <UserMenu />
           </div>

@@ -19,7 +19,9 @@ export function useSettings() {
         return { ...defaultSettings, ...JSON.parse(stored) };
       }
     } catch (e) {
-      console.error('Failed to load settings', e);
+      if (import.meta.env.DEV) {
+        console.error('Failed to load settings', e);
+      }
     }
     return defaultSettings;
   });
@@ -28,7 +30,9 @@ export function useSettings() {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     } catch (e) {
-      console.error('Failed to save settings', e);
+      if (import.meta.env.DEV) {
+        console.error('Failed to save settings', e);
+      }
     }
   }, [settings]);
 

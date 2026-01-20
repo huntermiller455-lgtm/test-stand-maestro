@@ -24,6 +24,7 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { useAuth } from '@/hooks/useAuth';
 
 export function SchedulerBoard() {
+  const { isAdmin } = useAuth();
   const { settings, updateSettings } = useSettings();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>(settings.defaultViewMode);
@@ -264,7 +265,9 @@ export function SchedulerBoard() {
               </Button>
             </div>
 
-            <MachineStatusPanel machines={machines} onUpdateMachine={handleUpdateMachine} />
+            {isAdmin && (
+              <MachineStatusPanel machines={machines} onUpdateMachine={handleUpdateMachine} />
+            )}
 
             <Link to="/history">
               <Button variant="outline" size="sm" className="gap-2">

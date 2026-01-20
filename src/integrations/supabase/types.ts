@@ -17,7 +17,7 @@ export type Database = {
       jobs: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           duration_hours: number
           id: string
           lane_index: number
@@ -31,7 +31,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           duration_hours: number
           id?: string
           lane_index?: number
@@ -45,7 +45,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           duration_hours?: number
           id?: string
           lane_index?: number
